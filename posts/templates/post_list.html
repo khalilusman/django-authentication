@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,20 +6,55 @@
     <title>Post List</title>
 </head>
 <body>
-    <h1>Post</h1>
-    {%for post in posts%}
-    <article>
-        <img src="{{ post.image.url}}"
-        alt="{{ post.title}}"
-        />
-    
+    <h1>Posts</h1>
+
+    {% for post in posts %}
+    <article style="border: 1px solid #ccc; padding: 15px; margin: 15px 0;">
+        
+        <img src="{{ post.image.url }}" alt="{{ post.title }}" style="max-width: 100%; height: auto;">
+
+        
         <h3>
             <a href="{% url 'posts:page' post.slug %}">
-            {{post.title}}
+                {{ post.title }}
             </a>
         </h3>
-        <h3>{{post.date}}</h3>
-        <h3>{{post.body}}</h3>
+
+        
+        <p><strong>Date:</strong> {{ post.date }}</p>
+        <p><strong>Author:</strong> {{ post.author.username }}</p>
+
+        
+        <p>{{ post.body }}</p>
+
+        
+        {% if request.user == post.author %}
+            <p><a href="{% url 'posts:edit_post' post.id %}">Edit</a></p>
+        {% endif %}
+
+        
+        <form method="post" action="{% url 'posts:like_post' post.id %}">
+            {% csrf_token %}
+            <button type="submit">
+                {% if request.user in post.likes.all %}
+                    Unlike
+                {% else %}
+                    Like
+                {% endif %}
+            </button>
+        </form>
+
+        <!-- Like Info -->
+        <p><strong>{{ post.likes.count }} Likes</strong></p>
+
+        <!-- Users Who Liked -->
+        <p><small>Liked by: 
+            {% for user in post.likes.all %}
+                {{ user.username }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                No likes yet.
+            {% endfor %}
+        </small></p>
     </article>
     {% endfor %}
 </body>

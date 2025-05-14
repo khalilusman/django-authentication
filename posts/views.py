@@ -1,18 +1,26 @@
-from django.shortcuts import render , redirect
+from django.shortcuts import render , redirect , get_object_or_404
 from . models import Post
 from django.contrib.auth.decorators import login_required
 from .  import forms
+from django.http import HttpResponseForbidden
 
 # Create your views here.
 
 def post_list(request):
-    posts = Post.objects.all().order_by('-date')
+    posts = Post.objects.all().order_by('-created_at')
     return render(request, 'post_list.html', {'posts': posts})
+
+
+
 
 
 def post_page(request, slug):
     post = Post.objects.get(slug=slug)
     return render(request, 'post_list.html',{'post': post})
+
+
+
+
 
 @login_required(login_url="/users/login/")
 def new_post(request):
@@ -28,3 +36,46 @@ def new_post(request):
     else:
      form = forms.CreatePost()
     return render(request, 'new_post.html',{'form' : form} )
+
+
+
+
+
+
+@login_required
+def like_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)
+    else:
+        post.likes.add(request.user)
+    return redirect('posts:post')
+
+
+
+
+
+
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Post
+
+
+@login_required
+def edit_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if request.user != post.author:
+        return HttpResponseForbidden("You are not allowed to edit this post.")
+
+    if request.method == 'POST':
+        form = forms.CreatePost(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('posts:post')
+    else:
+        form = forms.CreatePost(instance=post)
+
+    return render(request, 'edit_post.html', {'form': form})
+
