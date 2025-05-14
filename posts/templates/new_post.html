@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>New Post</title></head>
+<body>
+    <h3>New post here</h3>
+    <form  class= "form-with-validation"  action="{% url 'posts:new-post'%}" method = "post"
+     enctype = "multipart/form-data">
+    {% csrf_token %}
+    {{ form }}
+    <button class = "form-submit">Add Post</button>
+    </form>
+    
+  
+</body>
+</html>

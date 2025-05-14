@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post List</title>
+</head>
+<body>
+    <h1>Post</h1>
+    {%for post in posts%}
+    <article>
+        <img src="{{ post.image.url}}"
+        alt="{{ post.title}}"
+        />
+    
+        <h3>
+            <a href="{% url 'posts:page' post.slug %}">
+            {{post.title}}
+            </a>
+        </h3>
+        <h3>{{post.date}}</h3>
+        <h3>{{post.body}}</h3>
+    </article>
+    {% endfor %}
+</body>
+</html>
