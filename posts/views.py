@@ -57,11 +57,6 @@ def like_post(request, post_id):
 
 
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Post
-
-
 @login_required
 def edit_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -78,4 +73,29 @@ def edit_post(request, post_id):
         form = forms.CreatePost(instance=post)
 
     return render(request, 'edit_post.html', {'form': form})
+
+
+
+
+
+from django.views.generic.edit import DeleteView
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+
+    if request.user != post.author:
+        return HttpResponseForbidden("You are not allowed to delete this post.")
+    
+
+    if request.method == 'POST':
+        form = DeleteView(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.delete()
+            return redirect('posts:post')
+    else:
+        form = DeleteView(instance=post)
+
+    return render(request, 'post_list.html', {'form': form})
+
 
