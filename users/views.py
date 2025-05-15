@@ -10,7 +10,8 @@ def register_user(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            print(f"New user ID is: {user.id}")
             return redirect('users:login')
     else:
         form = UserCreationForm()

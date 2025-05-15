@@ -80,22 +80,18 @@ def edit_post(request, post_id):
 
 from django.views.generic.edit import DeleteView
 
-@login_required
-def delete_post(request, post_id):
-    post = get_object_or_404(Post, id=post_id)
+from django.views.generic.edit import DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy
 
-    if request.user != post.author:
-        return HttpResponseForbidden("You are not allowed to delete this post.")
-    
+class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Post
+    template_name = 'delete_post.html'
+    success_url = reverse_lazy('posts:post')
 
-    if request.method == 'POST':
-        form = DeleteView(request.POST, request.FILES, instance=post)
-        if form.is_valid():
-            form.delete()
-            return redirect('posts:post')
-    else:
-        form = DeleteView(instance=post)
+    def test_func(self):
+        post = self.get_object()
+        return self.request.user == post.author
 
-    return render(request, 'post_list.html', {'form': form})
 
 
